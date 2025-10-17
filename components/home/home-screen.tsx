@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Href, useRouter } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -185,9 +186,12 @@ const QuickActions: React.FC = () => {
 
 // Main Component
 const HomeScreen: React.FC = () => {
+  const router = useRouter();
   const handleGamePress = (game: Game) => {
     console.log(`Game pressed: ${game.name}`);
-    // Navigate to game screen or handle game selection
+    if (game.name.toLowerCase().includes("xo")) {
+      router.push("/xo" as Href);
+    }
   };
 
   return (

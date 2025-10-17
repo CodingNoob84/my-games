@@ -7,6 +7,7 @@ import LoginScreen from "./login-screen";
 // Initialize profile for a signed-in user if missing, once per session
 const ProfileBootstrap = () => {
   const user = db.useUser();
+  console.log("user", user);
   const { data, isLoading } = db.useQuery({
     profiles: { $: { where: { "user.id": user.id } } },
   });

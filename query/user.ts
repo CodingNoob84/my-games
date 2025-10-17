@@ -37,3 +37,17 @@ export const useProfile = () => {
 
   return { profile, user, isLoading, error };
 };
+
+export const getRandomBot = () => {
+  const { data } = db.useQuery({
+    bots: {
+      $: {},
+    },
+  });
+
+  const bots = data?.bots ?? [];
+  if (bots.length === 0) return null;
+
+  const randomIndex = Math.floor(Math.random() * bots.length);
+  return bots[randomIndex];
+};
