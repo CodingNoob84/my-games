@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -24,7 +25,6 @@ export default function ProfileTab() {
       Alert.alert("Error", "Name cannot be empty");
       return;
     }
-
     setIsLoading(true);
     try {
       // await db.updateUser({ name: editedName.trim() });
@@ -53,48 +53,61 @@ export default function ProfileTab() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#05051a]">
-      <View className="flex-1 px-6">
+    <SafeAreaView className="flex-1 bg-slate-950">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+      >
         {/* Header */}
-        <View className="items-center pt-10 pb-8">
-          <Text className="text-4xl font-extrabold text-white tracking-tight mb-2">
+        <View className="items-center pt-10 pb-8 mb-8">
+          <Text className="text-4xl font-bold text-white tracking-tight">
             Profile
           </Text>
-          <Text className="text-gray-400 text-base">Manage your account</Text>
         </View>
 
         {/* Profile Card */}
-        <View className="gap-4 mb-4">
+        <View className="bg-slate-800/40 rounded-3xl p-6 mb-8 border border-slate-700/50 shadow-xl shadow-black/20">
           {/* Avatar */}
-          <View className="items-center mb-8 relative">
-            <View className="w-40 h-40 rounded-full border-4 border-indigo-500/40 overflow-hidden shadow-xl shadow-indigo-500/20">
-              {profile?.avatar ? (
-                <Image
-                  source={{ uri: profile.avatar }}
-                  className="w-full h-full"
-                  resizeMode="cover"
-                />
-              ) : (
-                <View className="flex-1 items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
-                  <Ionicons name="person-outline" size={60} color="white" />
-                </View>
-              )}
+          <View className="items-center mb-10 -mt-20">
+            <View className="relative">
+              <View className="w-32 h-32 rounded-3xl border-4 border-white/10 overflow-hidden shadow-2xl bg-gradient-to-br from-slate-700 to-slate-800">
+                {profile?.avatar ? (
+                  <Image
+                    source={{ uri: profile.avatar }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View className="flex-1 items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
+                    <Ionicons name="person" size={48} color="white" />
+                  </View>
+                )}
+              </View>
+              <View className="absolute -bottom-2 -right-2 bg-gradient-to-r from-indigo-500 to-purple-600 w-9 h-9 rounded-full items-center justify-center border-2 border-slate-900">
+                <Ionicons name="sparkles" size={16} color="white" />
+              </View>
             </View>
           </View>
 
-          {/* Name Section */}
-          <View className="mb-8">
-            <View className="flex-row justify-between items-center mb-3">
-              <Text className="text-gray-400 text-sm font-semibold tracking-wide">
-                DISPLAY NAME
-              </Text>
+          {/* Display Name */}
+          <View className="mb-6">
+            <View className="flex-row justify-between items-center mb-4">
+              <View>
+                <Text className="text-slate-400 text-xs font-semibold tracking-wider uppercase mb-1">
+                  Display Name
+                </Text>
+                <Text className="text-slate-400 text-sm">
+                  Your public display name
+                </Text>
+              </View>
+
               {!isEditing && (
                 <TouchableOpacity
                   onPress={() => setIsEditing(true)}
-                  className="flex-row items-center bg-indigo-600/20 px-3 py-2 rounded-xl active:scale-95"
+                  className="flex-row items-center bg-white/5 px-4 py-2.5 rounded-xl border border-white/10 active:bg-white/10"
                 >
-                  <Ionicons name="pencil" size={14} color="#818cf8" />
-                  <Text className="text-indigo-300 ml-2 text-sm font-medium">
+                  <Ionicons name="pencil" size={16} color="#cbd5e1" />
+                  <Text className="text-slate-300 ml-2 text-sm font-medium">
                     Edit
                   </Text>
                 </TouchableOpacity>
@@ -102,34 +115,33 @@ export default function ProfileTab() {
             </View>
 
             {isEditing ? (
-              <View>
+              <View className="space-y-4">
                 <TextInput
                   value={editedName}
                   onChangeText={setEditedName}
-                  className="bg-gray-700/50 border-2 border-gray-600 rounded-2xl px-5 py-4 text-white text-xl text-center font-semibold"
+                  className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-lg font-medium placeholder-slate-500"
                   placeholder="Enter your name"
-                  placeholderTextColor="#6b7280"
-                  autoFocus
+                  placeholderTextColor="#64748b"
                   selectionColor="#6366f1"
                 />
-                <View className="flex-row mt-4 space-x-3">
+                <View className="flex-row space-x-3">
                   <TouchableOpacity
                     onPress={handleCancelEdit}
-                    className="flex-1 bg-gray-700/40 rounded-2xl py-4 items-center border border-gray-600 active:scale-95"
+                    className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 items-center active:bg-white/10"
                   >
-                    <Text className="text-gray-300 font-semibold text-lg">
+                    <Text className="text-slate-300 font-semibold text-base">
                       Cancel
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={handleSaveName}
-                    className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl py-4 items-center shadow-lg shadow-indigo-500/40 active:scale-95"
                     disabled={isLoading}
+                    className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl py-4 items-center shadow-md active:opacity-90"
                   >
                     {isLoading ? (
                       <ActivityIndicator size="small" color="white" />
                     ) : (
-                      <Text className="text-white font-semibold text-lg">
+                      <Text className="text-white font-semibold text-base">
                         Save
                       </Text>
                     )}
@@ -137,36 +149,62 @@ export default function ProfileTab() {
                 </View>
               </View>
             ) : (
-              <Text className="text-white text-2xl font-bold text-center py-3 bg-gray-700/30 rounded-2xl">
-                {profile?.name || "No name set"}
-              </Text>
+              <View className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 items-center">
+                <Text className="text-white text-xl font-semibold">
+                  {profile?.name || "No name set"}
+                </Text>
+              </View>
             )}
           </View>
 
           {/* Email Section */}
           <View>
-            <Text className="text-gray-400 text-sm font-semibold tracking-wide mb-3">
-              EMAIL ADDRESS
+            <Text className="text-slate-400 text-xs font-semibold tracking-wider uppercase mb-1">
+              Email Address
             </Text>
-            <View className="bg-gray-700/30 rounded-2xl px-5 py-4 border border-gray-600/50">
-              <Text className="text-gray-100 text-lg text-center font-medium">
+            <Text className="text-slate-400 text-sm mb-3">
+              Your account email address
+            </Text>
+            <View className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 flex-row items-center justify-between">
+              <Text className="text-slate-100 text-lg font-medium flex-shrink">
                 {profile?.email || "Not available"}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Logout Button */}
+        {/* Stats */}
+        <View className="flex-row mb-8 space-x-4">
+          <View className="flex-1 bg-slate-800/40 rounded-2xl p-4 border border-slate-700/50">
+            <Text className="text-slate-400 text-sm font-medium mb-1">
+              Member since
+            </Text>
+            <Text className="text-white text-lg font-semibold">
+              {new Date().getFullYear()}
+            </Text>
+          </View>
+          <View className="flex-1 bg-slate-800/40 rounded-2xl p-4 border border-slate-700/50">
+            <Text className="text-slate-400 text-sm font-medium mb-1">
+              Status
+            </Text>
+            <View className="flex-row items-center">
+              <View className="w-2.5 h-2.5 bg-emerald-400 rounded-full mr-2" />
+              <Text className="text-white text-lg font-semibold">Active</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Logout */}
         <TouchableOpacity
           onPress={handleLogout}
-          className="bg-red-500/10 border-2 border-red-500/30 rounded-2xl py-5 items-center flex-row justify-center shadow-lg shadow-red-500/10 active:scale-95"
+          className="flex-row items-center justify-center bg-red-500/10 border border-red-500/20 rounded-2xl py-4 active:bg-red-500/20"
         >
-          <Ionicons name="log-out-outline" size={20} color="#f87171" />
-          <Text className="text-red-400 font-semibold text-lg ml-3">
-            Logout
+          <Ionicons name="log-out-outline" size={22} color="#f87171" />
+          <Text className="text-red-400 font-semibold text-lg ml-2">
+            Sign Out
           </Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

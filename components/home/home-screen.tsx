@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { UserCard } from "./user-card";
 
 // Types
 type User = {
@@ -83,19 +84,6 @@ const games: Game[] = [
   },
 ];
 
-// Components
-const UserAvatar: React.FC<{ name: string; size?: number }> = ({
-  name,
-  size = 16,
-}) => {
-  const initial = name.charAt(0).toUpperCase();
-  return (
-    <View className="w-16 h-16 bg-indigo-600 rounded-2xl items-center justify-center shadow-lg shadow-indigo-500/25">
-      <Text className="text-white text-2xl font-bold">{initial}</Text>
-    </View>
-  );
-};
-
 const GameCard: React.FC<{ game: Game; onPress: (game: Game) => void }> = ({
   game,
   onPress,
@@ -130,60 +118,6 @@ const GameCard: React.FC<{ game: Game; onPress: (game: Game) => void }> = ({
   );
 };
 
-const StatsCard: React.FC = () => {
-  const stats = [
-    { label: "Games Played", value: "24", icon: "🎮" },
-    { label: "Win Rate", value: "68%", icon: "🏆" },
-    { label: "Level", value: "12", icon: "⭐" },
-  ];
-
-  return (
-    <View className="mx-4 mt-4">
-      <View className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-4 border border-gray-700">
-        <View className="flex-row justify-between items-center">
-          {stats.map((stat, index) => (
-            <View key={stat.label} className="items-center flex-1">
-              <Text className="text-2xl mb-1">{stat.icon}</Text>
-              <Text className="text-white text-lg font-bold">{stat.value}</Text>
-              <Text className="text-gray-400 text-xs mt-1">{stat.label}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-    </View>
-  );
-};
-
-const QuickActions: React.FC = () => {
-  const actions = [
-    { icon: "🔍", label: "Discover", color: "bg-purple-500/20" },
-    { icon: "👥", label: "Friends", color: "bg-blue-500/20" },
-    { icon: "🏆", label: "Leaderboard", color: "bg-yellow-500/20" },
-    { icon: "⚡", label: "Daily", color: "bg-green-500/20" },
-  ];
-
-  return (
-    <View className="mx-4 mt-6">
-      <Text className="text-xl font-bold text-white mb-3">Quick Actions</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View className="flex-row space-x-3">
-          {actions.map((action) => (
-            <TouchableOpacity
-              key={action.label}
-              className={`${action.color} rounded-2xl p-4 items-center justify-center w-24 h-20 border border-gray-700`}
-            >
-              <Text className="text-2xl mb-2">{action.icon}</Text>
-              <Text className="text-white text-sm font-medium text-center">
-                {action.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
-    </View>
-  );
-};
-
 // Main Component
 const HomeScreen: React.FC = () => {
   const router = useRouter();
@@ -210,29 +144,7 @@ const HomeScreen: React.FC = () => {
       </View>
 
       {/* Top Card - User Profile */}
-      <View className="bg-gray-800 mx-4 mt-4 rounded-2xl p-6 border border-gray-700 shadow-lg shadow-black/20">
-        <View className="flex-row items-center">
-          <UserAvatar name={userData.name} />
-          <View className="ml-4 flex-1">
-            <Text className="text-xl font-bold text-white">
-              {userData.name}
-            </Text>
-            <Text className="text-gray-400 mt-1">{userData.email}</Text>
-            <View className="flex-row mt-2">
-              <View className="bg-indigo-500/20 px-3 py-1 rounded-full mr-2">
-                <Text className="text-indigo-300 text-xs font-medium">
-                  Pro Player
-                </Text>
-              </View>
-              <View className="bg-gray-700 px-3 py-1 rounded-full">
-                <Text className="text-gray-300 text-xs font-medium">
-                  Level 12
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
+      <UserCard />
 
       {/* Games List Section */}
       <View className="flex-1 mt-6">
