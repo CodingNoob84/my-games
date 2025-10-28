@@ -1,0 +1,36 @@
+{
+  "cli": {
+    "version": ">= 16.25.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_INSTANT_APP_ID": "a654a44b-6b54-439d-997e-3fa75e9637d6"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_INSTANT_APP_ID": "a654a44b-6b54-439d-997e-3fa75e9637d6"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_INSTANT_APP_ID": "a654a44b-6b54-439d-997e-3fa75e9637d6"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
