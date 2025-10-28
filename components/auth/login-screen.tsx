@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useCallback, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
@@ -52,103 +53,114 @@ const LoginScreen = () => {
   }, []);
 
   return (
-    <>
-      <View className="flex-1 justify-center items-center bg-[#0b0b41]">
-        <KeyboardAvoidingView behavior="padding">
-          <View className="w-[340px] bg-white rounded-2xl p-6 shadow-lg items-stretch">
-            {!sent ? (
-              <>
-                <Text className="text-2xl font-bold mb-2 text-center">
-                  Sign in to Chat
-                </Text>
-                <Text className="text-[15px] text-[#666] mb-4 text-center">
-                  Enter your email to receive a magic sign-in code.
-                </Text>
+    <View className="flex-1 justify-center items-center bg-[#0a0a1a]">
+      <KeyboardAvoidingView behavior="padding">
+        <View className="w-[340px] bg-[#141432] rounded-2xl p-6 border border-[#2a2a5a] shadow-2xl shadow-blue-900/30">
+          <View className="items-center mb-5">
+            <Ionicons name="game-controller" size={48} color="#4f46e5" />
+            <Text className="text-2xl font-bold text-white mt-3">
+              Kames Login
+            </Text>
+          </View>
+
+          {!sent ? (
+            <>
+              <Text className="text-[15px] text-gray-300 mb-4 text-center">
+                Enter your email to receive a magic sign-in code.
+              </Text>
+
+              <View className="flex-row items-center bg-[#1e1e3f] rounded-xl px-3 mb-5 border border-[#33335a]">
+                <MaterialIcons name="email" size={22} color="#888" />
                 <TextInput
-                  className="h-12 border border-[#ddd] rounded-xl px-4 mb-4 bg-[#f7f7fa] text-base"
+                  className="flex-1 h-12 px-3 text-white text-base focus:outline-none"
                   value={email}
                   onChangeText={setEmail}
                   placeholder="Enter your email"
+                  placeholderTextColor="#777"
                   autoCapitalize="none"
                   keyboardType="email-address"
                   editable={!loading}
                   textContentType="emailAddress"
                 />
-                {/* Btn Container*/}
-                <View className="flex-row justify-center items-center mt-1 mb-1">
-                  <TouchableOpacity
-                    onPress={sendCode}
-                    disabled={!email || loading}
-                    className={`rounded-full px-5 py-2 items-center justify-center ${!email || loading ? "bg-gray-200 opacity-60" : "bg-[#f4511e]"}`}
-                    activeOpacity={0.8}
-                    accessibilityLabel="Send code"
-                  >
-                    <Text
-                      className={`font-bold text-[16px] tracking-wide ${!email || loading ? "text-gray-400" : "text-white"}`}
-                    >
-                      {loading ? "Sending..." : "Send Code"}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            ) : (
-              <>
-                <Text className="text-2xl font-bold mb-2 text-center">
-                  Enter the code sent to
+              </View>
+
+              <TouchableOpacity
+                onPress={sendCode}
+                disabled={!email || loading}
+                activeOpacity={0.8}
+                className={`rounded-xl py-3 mt-2 ${
+                  !email || loading ? "bg-[#2a2a5a] opacity-60" : "bg-[#4f46e5]"
+                }`}
+              >
+                <Text className="text-white text-center font-semibold text-[16px]">
+                  {loading ? "Sending..." : "Send Code"}
                 </Text>
-                <Text className="text-base text-[#333] font-semibold mb-3 text-center">
-                  {email}
-                </Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Text className="text-[15px] text-gray-300 text-center mb-3">
+                Enter the 6-digit code sent to
+              </Text>
+              <Text className="text-base text-indigo-400 font-semibold mb-5 text-center">
+                {email}
+              </Text>
+
+              <View className="flex-row items-center bg-[#1e1e3f] rounded-xl px-3 mb-5 border border-[#33335a]">
+                <MaterialIcons name="lock" size={22} color="#888" />
                 <TextInput
-                  className="h-12 border border-[#ddd] rounded-xl px-4 mb-4 bg-[#f7f7fa] text-base"
+                  className="flex-1 h-12 px-3 text-white text-base tracking-widest text-center focus:outline-none"
                   value={code}
                   onChangeText={setCode}
                   placeholder="123456"
+                  placeholderTextColor="#777"
                   keyboardType="number-pad"
                   editable={!loading}
                   textContentType="oneTimeCode"
                   maxLength={8}
                 />
-                <View className="flex-row justify-center items-center mt-1 mb-1">
-                  <TouchableOpacity
-                    onPress={signIn}
-                    disabled={!code || loading}
-                    className={`rounded-full px-5 py-2 items-center justify-center ${!code || loading ? "bg-gray-200 opacity-60" : "bg-[#f4511e]"}`}
-                    activeOpacity={0.8}
-                    accessibilityLabel="Sign in"
-                  >
-                    <Text
-                      className={`font-bold text-[16px] tracking-wide ${!code || loading ? "text-gray-400" : "text-white"}`}
-                    >
-                      {loading ? "Signing in..." : "Sign In"}
-                    </Text>
-                  </TouchableOpacity>
-                  <View className="w-3" />
-                  <TouchableOpacity
-                    onPress={handleBack}
-                    disabled={loading}
-                    className={`rounded-full px-5 py-2 items-center justify-center ${loading ? "bg-gray-200 opacity-60" : "bg-[#888]"}`}
-                    activeOpacity={0.8}
-                    accessibilityLabel="Back"
-                  >
-                    <Text
-                      className={`font-bold text-[16px] tracking-wide ${loading ? "text-gray-400" : "text-white"}`}
-                    >
-                      Back
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-            {!!error && (
-              <Text className="text-red-600 mt-3 text-center text-[15px]">
-                {error}
-              </Text>
-            )}
-          </View>
-        </KeyboardAvoidingView>
-      </View>
-    </>
+              </View>
+
+              <View className="flex-row justify-between">
+                <TouchableOpacity
+                  onPress={signIn}
+                  disabled={!code || loading}
+                  activeOpacity={0.8}
+                  className={`flex-1 rounded-xl py-3 ${
+                    !code || loading
+                      ? "bg-[#2a2a5a] opacity-60"
+                      : "bg-[#4f46e5]"
+                  }`}
+                >
+                  <Text className="text-white text-center font-semibold text-[16px]">
+                    {loading ? "Signing in..." : "Sign In"}
+                  </Text>
+                </TouchableOpacity>
+
+                <View className="w-4" />
+
+                <TouchableOpacity
+                  onPress={handleBack}
+                  disabled={loading}
+                  activeOpacity={0.8}
+                  className="flex-1 bg-[#33335a] rounded-xl py-3"
+                >
+                  <Text className="text-white text-center font-semibold text-[16px]">
+                    Back
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
+          {!!error && (
+            <Text className="text-red-400 mt-4 text-center text-[14px]">
+              {error}
+            </Text>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 

@@ -32,7 +32,7 @@ export const useProfile = () => {
       $: { where: { "user.id": user.id } },
     },
   });
-  console.log("daat", data);
+  //console.log("daat", data);
   const profile = data?.profiles?.[0];
 
   return { profile, user, isLoading, error };

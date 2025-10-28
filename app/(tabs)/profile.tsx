@@ -1,3 +1,4 @@
+import { db } from "@/lib/db";
 import { useProfile } from "@/query/user";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
@@ -50,6 +51,7 @@ export default function ProfileTab() {
         onPress: () => console.log("Logout pressed"),
       },
     ]);
+    db.auth.signOut();
   };
 
   return (
