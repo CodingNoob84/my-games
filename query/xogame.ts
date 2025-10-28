@@ -1,20 +1,28 @@
 import { db } from "@/lib/db";
 import { id } from "@instantdb/core";
 
-export const createXOGame = async (playerIds: string[]) => {
+export const createXOGame = async (playerIds: string[], type: string) => {
   if (!playerIds || playerIds.length !== 2) {
-    throw new Error("You must provide exactly two player IDs");
+    return {
+      success: false,
+      result: "",
+      error: "You must provide exactly two player IDs",
+    };
+    //throw new Error("You must provide exactly two player IDs");
   }
 
   const [playerXUserId, playerOUserId] = playerIds;
 
   const gameData = {
-    board: "---------", // 3x3 empty board
+    key: id(),
+    board: [null, null, null, null, null, null, null, null, null], // 3x3 empty board
+    track: [],
+    moveCount: 0,
     currentTurn: playerXUserId, // Player X starts by default
     playerXUserId,
     playerOUserId,
     status: "playing", // could be: waiting | playing | finished
-    type: "global",
+    type: type,
     updatedAt: Date.now(),
     wonBy: null,
   };
@@ -23,7 +31,7 @@ export const createXOGame = async (playerIds: string[]) => {
     const uniqueId = id();
     const result = await db.transact(db.tx.xogame[uniqueId].create(gameData));
     console.log("✅ Game created:", uniqueId);
-    return uniqueId;
+    return { success: true, result: uniqueId, error: null };
   } catch (err) {
     console.error("❌ Error creating XO game:", err);
     throw err;
@@ -31,69 +39,116 @@ export const createXOGame = async (playerIds: string[]) => {
 };
 
 // Define a union type for players
-type Player = {
+export type Player = {
   id: string;
   name?: string;
   email?: string;
-  image?: string;
+  avatar?: string;
   isBot?: boolean; // new flag
 };
 
-export function useGameWithPlayers(id: string) {
-  const { data: gameData } = db.useQuery({
-    xogame: { $: { where: { id } } },
-  });
+export type XOGame = {
+  id: string;
+  key: string;
+  board: string[];
+  moveCount: number;
+  currentTurn: string;
+  playerXUserId: string;
+  playerOUserId: string;
+  track?: number[];
+  type?: "bot" | "user" | string;
+  createdAt?: number;
+  updatedAt?: number;
+};
+
+export function useGameWithPlayers(id: string): {
+  game: XOGame | null;
+  players: Player[];
+  playerX: Player | null;
+  playerO: Player | null;
+  isLoading: boolean;
+} {
+  // 🧩 Always call hooks unconditionally - use empty arrays when no IDs
+  const { data: gameData, isLoading: gameLoading } = db.useQuery(
+    id
+      ? {
+          xogame: { $: { where: { id } } },
+        }
+      : {
+          xogame: { $: { where: { id: "" } } }, // Empty query when no ID
+        }
+  );
 
   const game = gameData?.xogame?.[0];
-  if (!game) return { game: null, players: [] as Player[] };
 
-  const playerIds = [game.playerXUserId, game.playerOUserId].filter(Boolean);
+  // Determine player IDs - use empty array if no game
+  const playerIds = game
+    ? [game.playerXUserId, game.playerOUserId].filter(Boolean)
+    : [];
 
-  // Fetch users
-  const { data: usersData } = db.useQuery(
-    playerIds.length
+  // 🧩 Fetch users (human players) - always call the hook
+  const { data: usersData, isLoading: usersLoading } = db.useQuery(
+    playerIds.length > 0
       ? {
           $users: {
             $: { where: { id: { $in: playerIds } } },
             profile: {},
           },
         }
-      : null
+      : {
+          $users: { $: { where: { id: { $in: [] } } } }, // Empty query
+        }
   );
 
   const users: Player[] =
     usersData?.$users?.map((u) => ({
       ...u,
-      name: u.profile?.name ?? "",
-      isBot: false, // mark as user
+      name: u.profile?.name ?? "Unknown Player",
+      avatar: u.profile?.avatar ?? "https://placehold.co/100x100?text=User",
+      isBot: false,
     })) ?? [];
 
-  // Determine missing IDs → bots
+  // 🧩 Detect bots (missing users) - always call the hook
   const fetchedUserIds = users.map((u) => u.id);
   const botIds = playerIds.filter((id) => !fetchedUserIds.includes(id));
 
-  const { data: botsData } = db.useQuery(
-    botIds.length
+  const { data: botsData, isLoading: botsLoading } = db.useQuery(
+    botIds.length > 0
       ? {
           bots: {
             $: { where: { id: { $in: botIds } } },
           },
         }
-      : null
+      : {
+          bots: { $: { where: { id: { $in: [] } } } }, // Empty query
+        }
   );
 
   const bots: Player[] =
     botsData?.bots?.map((b) => ({
       ...b,
-      isBot: true, // mark as bot
+      isBot: true,
+      name: b.name ?? "Bot",
+      avatar: b.avatar ?? "https://placehold.co/100x100?text=Bot",
     })) ?? [];
 
-  // Combine players in original order
+  // 🧩 Combine all players in correct order
   const players: Player[] = playerIds
     .map(
       (id) => users.find((u) => u.id === id) || bots.find((b) => b.id === id)
     )
     .filter(Boolean) as Player[];
 
-  return { game, players };
+  // 🧩 Identify X and O players
+  const playerX = players.find((p) => p.id === game?.playerXUserId) ?? null;
+  const playerO = players.find((p) => p.id === game?.playerOUserId) ?? null;
+
+  // 🧩 Return combined data
+  return {
+    game: game || null,
+    players,
+    playerX,
+    playerO,
+    isLoading: gameLoading || usersLoading || botsLoading,
+  };
 }

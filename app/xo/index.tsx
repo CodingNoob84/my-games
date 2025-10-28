@@ -3,7 +3,7 @@ import { getRandomBot } from "@/query/user";
 import { createXOGame } from "@/query/xogame";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const ROOM = db.room("xo", "global-xo");
+const ROOM = db.room("xogame", "global-xo");
 
 export default function XOIndex() {
   const router = useRouter();
@@ -63,30 +63,13 @@ export default function XOIndex() {
 
   const handleStartBotGame = async () => {
     if (bot) {
-      const result = await createXOGame([me.id, bot.id]);
-      console.log("-->", result);
+      const response = await createXOGame([me.id, bot.id], "bot");
+      //console.log("-->", response);
+      if (response.success) {
+        router.push(`/xo/${response.result}`);
+      }
     }
   };
-
-  const startBotGame = useCallback(async () => {
-    if (!user) return;
-    setCreating(true);
-    try {
-      const key = `xo_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-      const tx = db.tx.xogame[key].update({
-        key,
-        playerXUserId: user.id as string,
-        playerOUserId: "bot",
-        type: "bot",
-        status: "in_progress",
-        updatedAt: Date.now(),
-      });
-      await db.transact([tx]);
-      router.push({ pathname: "/xo/[id]", params: { id: key } });
-    } finally {
-      setCreating(false);
-    }
-  }, [user]);
 
   const getInitials = (name: string, email: string, id: string) => {
     if (name) {
@@ -114,7 +97,7 @@ export default function XOIndex() {
         <View className="mx-4 bg-gray-800 rounded-3xl p-6 border border-gray-700 shadow-2xl shadow-black/40 mb-6">
           {/* Play vs Bot Section */}
           <View className="items-center mb-8">
-            <View className="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl items-center justify-center shadow-lg shadow-orange-500/30 mb-4">
+            <View className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-800 rounded-2xl items-center justify-center shadow-lg shadow-blue-800/30 mb-4">
               <MaterialCommunityIcons name="robot" size={32} color="white" />
             </View>
             <Text className="text-white text-xl font-bold mb-2">
@@ -124,12 +107,12 @@ export default function XOIndex() {
               Challenge our smart bot opponent
             </Text>
             <TouchableOpacity
-              onPress={startBotGame}
+              onPress={handleStartBotGame}
               disabled={creating}
               className={`w-full rounded-2xl py-4 items-center shadow-lg ${
                 creating
                   ? "bg-gray-600"
-                  : "bg-gradient-to-r from-orange-500 to-red-500"
+                  : "bg-gradient-to-r from-blue-500 to-blue-800"
               }`}
             >
               {creating ? (
