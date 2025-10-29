@@ -24,6 +24,7 @@ type Game = {
   icon: string;
   description: string;
   category?: string;
+  link: string;
 };
 
 type FooterItem = {
@@ -33,12 +34,6 @@ type FooterItem = {
   isActive?: boolean;
 };
 
-// Mock data
-const userData: User = {
-  name: "John Doe",
-  email: "john.doe@example.com",
-};
-
 const games: Game[] = [
   {
     id: 1,
@@ -46,6 +41,7 @@ const games: Game[] = [
     icon: "⭕",
     description: "Classic XO game",
     category: "Strategy",
+    link: "/xo",
   },
   {
     id: 2,
@@ -53,6 +49,7 @@ const games: Game[] = [
     icon: "🎯",
     description: "Play Bingo with friends",
     category: "Luck",
+    link: "/bingo",
   },
   {
     id: 3,
@@ -60,6 +57,7 @@ const games: Game[] = [
     icon: "🔢",
     description: "Number puzzle game",
     category: "Puzzle",
+    link: "/numberly",
   },
   {
     id: 4,
@@ -67,6 +65,7 @@ const games: Game[] = [
     icon: "9️⃣",
     description: "Logic-based number puzzle",
     category: "Logic",
+    link: "/sudoku",
   },
   {
     id: 5,
@@ -74,6 +73,7 @@ const games: Game[] = [
     icon: "♟️",
     description: "Strategic board game",
     category: "Strategy",
+    link: "/chess",
   },
   {
     id: 6,
@@ -81,6 +81,7 @@ const games: Game[] = [
     icon: "⚫",
     description: "Classic checkers game",
     category: "Strategy",
+    link: "/checkers",
   },
 ];
 
@@ -121,11 +122,10 @@ const GameCard: React.FC<{ game: Game; onPress: (game: Game) => void }> = ({
 // Main Component
 const HomeScreen: React.FC = () => {
   const router = useRouter();
+
   const handleGamePress = (game: Game) => {
     console.log(`Game pressed: ${game.name}`);
-    if (game.name.toLowerCase().includes("xo")) {
-      router.push("/xo" as Href);
-    }
+    router.push(game.link as Href);
   };
 
   return (

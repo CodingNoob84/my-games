@@ -39,6 +39,15 @@ const _schema = i.schema({
       updatedAt: i.number().indexed().optional(),
       wonBy: i.string().optional(),
     }),
+    numberly: i.entity({
+      userId: i.string().indexed(),
+      givenNumber: i.number(),
+      board: i.json(),
+      guessCount: i.number(),
+      status: i.string().optional(),
+      type: i.string(),
+      updatedAt: i.number().optional(),
+    }),
   },
   links: {
     $usersLinkedPrimaryUser: {
@@ -68,6 +77,14 @@ const _schema = i.schema({
     },
   },
   rooms: {
+    game: {
+      presence: i.entity({
+        id: i.string(),
+        name: i.string().optional(),
+        email: i.string().optional(),
+        avatar: i.string().optional(),
+      }),
+    },
     xogame: {
       presence: i.entity({
         id: i.string(),

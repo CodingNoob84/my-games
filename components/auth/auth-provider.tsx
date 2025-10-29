@@ -4,12 +4,16 @@ import React, { useEffect, useRef } from "react";
 import { LoadingScreen } from "../common/loading-screen";
 import LoginScreen from "./login-screen";
 
-// Initializes a profile for new signed-in users if missing
 const ProfileBootstrap = () => {
-  const user = db.useUser();
-  const { data, isLoading } = db.useQuery({
+  if (!db) {
+    console.warn("⚠️ Database client (db) not initialized yet");
+    return null;
+  }
+
+  const user = db.useUser?.();
+  const { data, isLoading } = db.useQuery?.({
     profiles: { $: { where: { "user.id": user?.id } } },
-  });
+  }) ?? { data: null, isLoading: true };
 
   const profile = data?.profiles?.[0];
   const initializedForUserRef = useRef<string | null>(null);
@@ -19,7 +23,7 @@ const ProfileBootstrap = () => {
       if (!user?.id || isLoading || profile) return;
       if (initializedForUserRef.current === user.id) return;
       initializedForUserRef.current = user.id;
-      await initProfile(user.id, user.email ?? ""); // ✅ await here
+      await initProfile(user.id, user.email ?? "");
     };
     init();
   }, [user?.id, user?.email, isLoading, profile]);
@@ -28,11 +32,27 @@ const ProfileBootstrap = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { isLoading, error, user } = db.useAuth();
-  console.log("AuthProvider - user:", user);
-  if (isLoading) {
+  if (!db) {
+    console.warn("⚠️ Database client (db) not initialized yet");
     return <LoadingScreen />;
   }
+
+  const { isLoading, error, user } = db.useAuth?.() ?? {
+    isLoading: true,
+    error: null,
+    user: null,
+  };
+
+  console.log(
+    "AuthProvider - user:",
+    user,
+    "isLoading:",
+    isLoading,
+    "error:",
+    error
+  );
+
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <>
