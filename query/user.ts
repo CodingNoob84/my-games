@@ -5,13 +5,14 @@ export const initProfile = async (userId: string, email: string) => {
   console.log("email", email, userId);
   const name = getNameFromEmail(email);
   const avatarUrl = `https://api.dicebear.com/9.x/thumbs/png?seed=${encodeURIComponent(email)}`;
-  const existing = db.useQuery({
+  const existing = await db.queryOnce({
     profiles: {
       $: {
         where: { id: userId },
       },
     },
   });
+  console.log("existing profile", existing);
   if (existing) {
     await db.transact([
       db.tx.profiles[userId]
