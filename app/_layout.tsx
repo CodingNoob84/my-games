@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { PresenceProvider } from "@/provider/presence-provider";
 import { Stack } from "expo-router";
 import React from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import "./global.css";
 
 export default function RootLayout() {
@@ -26,7 +27,9 @@ export default function RootLayout() {
     <ErrorBoundary>
       <AuthProvider>
         <PresenceProvider>
-          <Stack screenOptions={{ headerShown: false }} />
+          <SafeAreaProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </SafeAreaProvider>
         </PresenceProvider>
       </AuthProvider>
     </ErrorBoundary>
