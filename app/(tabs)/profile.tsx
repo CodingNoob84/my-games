@@ -43,14 +43,6 @@ export default function ProfileTab() {
   };
 
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: () => console.log("Logout pressed"),
-      },
-    ]);
     db.auth.signOut();
   };
 
