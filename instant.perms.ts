@@ -19,6 +19,11 @@ const rules = {
    *   bind: ["isOwner", "auth.id != null && auth.id == data.ownerId"],
    * },
    */
+  $default: {
+    allow: {
+      view: "true",
+    },
+  },
 } satisfies InstantRules;
 
 export default rules;

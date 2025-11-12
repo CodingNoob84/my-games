@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { botXOPlaying, Cell, computeXOWinner } from "@/lib/xogame";
+import { Cell, computeXOWinner } from "@/lib/xogame";
 import { createXOGame, Player, XOGame } from "@/query/xogame";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -140,8 +140,9 @@ export const XOGameArea = ({
       const timer = setTimeout(() => {
         const botSymbol: Cell =
           currentPlayer === game.playerXUserId ? "X" : "O";
-        const botIndex = botXOPlaying(game.board as Cell[], botSymbol);
-        if (botIndex !== -1) makeMove(botIndex, botSymbol);
+        const botIndex = 2;
+        //botXOPlaying(game.board as Cell[], botSymbol);
+        //if (botIndex !== -1) makeMove(botIndex, botSymbol);
       }, 1000);
 
       return () => clearTimeout(timer);

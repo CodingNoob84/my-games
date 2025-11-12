@@ -1,4 +1,4 @@
-import { XOGameArea } from "@/components/xogame/game-area";
+import { BotXOGameArea } from "@/components/xogame/bot-game-area";
 import { useGameWithPlayers } from "@/query/xogame";
 import { useLocalSearchParams } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
@@ -37,7 +37,9 @@ export default function XOGame() {
       contentContainerStyle={{ flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
     >
-      {game && <XOGameArea game={game} players={players} />}
+      {game && game.type == "bot" && (
+        <BotXOGameArea game={game} players={players} />
+      )}
     </ScrollView>
   );
 }

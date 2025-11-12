@@ -20,32 +20,97 @@ export const computeXOWinner = (board: Cell[]) => {
   return null;
 };
 
-export const botXOPlaying = (board: Cell[], botSymbol: Cell): number => {
-  if (!botSymbol) return -1;
-  const opponent = botSymbol === "X" ? "O" : "X";
-  const emptyIndices = board
-    .map((cell, idx) => (cell === null ? idx : -1))
-    .filter((idx) => idx !== -1);
+export const getBotPlaying = (
+  board: Cell[],
+  track: number[],
+  botSymbol: Cell,
+  level: number
+): number => {
+  const opponent: Cell = botSymbol === "X" ? "O" : "X";
+  const available: number[] = board
+    .map((v, i) => (v === null ? i : null))
+    .filter((i): i is number => i !== null);
 
-  // Try to win
-  for (const i of emptyIndices) {
-    const test = [...board];
-    test[i] = botSymbol;
-    if (computeXOWinner(test) === botSymbol) return i;
+  const wins: number[][] = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8], // rows
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8], // cols
+    [0, 4, 8],
+    [2, 4, 6], // diagonals
+  ];
+
+  const checkWin = (b: Cell[], s: Cell): boolean =>
+    wins.some((line) => line.every((i) => b[i] === s));
+
+  // --- Easy: random
+  if (level === 1) {
+    return available[Math.floor(Math.random() * available.length)];
   }
 
-  // Try to block opponent
-  for (const i of emptyIndices) {
-    const test = [...board];
-    test[i] = opponent;
-    if (computeXOWinner(test) === opponent) return i;
+  // --- Medium: win or block
+  if (level === 2) {
+    // Try winning move
+    for (const i of available) {
+      const temp = [...board];
+      temp[i] = botSymbol;
+      if (checkWin(temp, botSymbol)) return i;
+    }
+
+    // Try blocking
+    for (const i of available) {
+      const temp = [...board];
+      temp[i] = opponent;
+      if (checkWin(temp, opponent)) return i;
+    }
+
+    // Otherwise random
+    return available[Math.floor(Math.random() * available.length)];
   }
 
-  // Otherwise pick center, corner, or random
-  if (emptyIndices.includes(4)) return 4; // center
-  const corners = [0, 2, 6, 8].filter((i) => emptyIndices.includes(i));
-  if (corners.length)
-    return corners[Math.floor(Math.random() * corners.length)];
-  if (emptyIndices.length === 0) return -1;
-  return emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+  // --- Hard: heuristic minimax with limited depth
+  const minimax = (b: Cell[], depth: number, isMaximizing: boolean): number => {
+    if (checkWin(b, botSymbol)) return 10 - depth;
+    if (checkWin(b, opponent)) return depth - 10;
+
+    const moves: number[] = b
+      .map((v, i) => (v === null ? i : null))
+      .filter((i): i is number => i !== null);
+
+    if (moves.length === 0 || depth >= 3) return 0;
+
+    if (isMaximizing) {
+      let best = -Infinity;
+      for (const m of moves) {
+        const newBoard = [...b];
+        newBoard[m] = botSymbol;
+        best = Math.max(best, minimax(newBoard, depth + 1, false));
+      }
+      return best;
+    } else {
+      let best = Infinity;
+      for (const m of moves) {
+        const newBoard = [...b];
+        newBoard[m] = opponent;
+        best = Math.min(best, minimax(newBoard, depth + 1, true));
+      }
+      return best;
+    }
+  };
+
+  let bestScore = -Infinity;
+  let bestMove = available[0];
+  for (const i of available) {
+    const temp = [...board];
+    temp[i] = botSymbol;
+    const score = minimax(temp, 0, false);
+    if (score > bestScore) {
+      bestScore = score;
+      bestMove = i;
+    }
+  }
+
+  return bestMove;
 };

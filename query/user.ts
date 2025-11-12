@@ -39,16 +39,42 @@ export const useProfile = () => {
   return { profile, user, isLoading, error };
 };
 
-export const getRandomBot = () => {
-  const { data } = db.useQuery({
-    bots: {
-      $: {},
-    },
-  });
+export type Bot = {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  level?: number;
+};
 
+export const getRandomBot = async (level?: number): Promise<Bot | null> => {
+  const query =
+    level !== undefined
+      ? { bots: { $: { where: { level } } } }
+      : { bots: { $: {} } };
+
+  const { data } = await db.queryOnce(query);
   const bots = data?.bots ?? [];
+
   if (bots.length === 0) return null;
 
+  // Pick one random bot
   const randomIndex = Math.floor(Math.random() * bots.length);
-  return bots[randomIndex];
+  return bots[randomIndex] as Bot;
+};
+
+export const getRandomBots = (count: number, level?: number): Bot[] | null => {
+  const query =
+    level !== undefined
+      ? { bots: { $: { where: { level } } } }
+      : { bots: { $: {} } };
+
+  const { data } = db.useQuery(query);
+  const bots = data?.bots ?? [];
+
+  if (bots.length === 0) return null;
+
+  // Shuffle array and take the requested number
+  const shuffled = [...bots].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, Math.min(count, bots.length)) as Bot[];
 };

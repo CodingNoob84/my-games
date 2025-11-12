@@ -1,7 +1,24 @@
 import { db } from "@/lib/db";
 import { id } from "@instantdb/core";
+import { getRandomBot } from "./user";
 
-export const createXOGame = async (playerIds: string[], type: string) => {
+export const createBotXOGame = async (myId: string, level: number) => {
+  const bot = await getRandomBot(level);
+  if (!bot) {
+    console.error("❌ No bot found!");
+    return { success: false, result: null, error: "No bot available" };
+  }
+
+  // Randomize who starts as X or O
+  const playerIds = [myId, bot.id];
+  return await createXOGame(playerIds, "bot", level);
+};
+
+export const createXOGame = async (
+  playerIds: string[],
+  type: string,
+  level: number = 0
+) => {
   if (!playerIds || playerIds.length !== 2) {
     return {
       success: false,
@@ -10,8 +27,8 @@ export const createXOGame = async (playerIds: string[], type: string) => {
     };
     //throw new Error("You must provide exactly two player IDs");
   }
-
-  const [playerXUserId, playerOUserId] = playerIds;
+  const shuffled = playerIds.sort(() => Math.random() - 0.5);
+  const [playerXUserId, playerOUserId] = shuffled;
 
   const gameData = {
     key: id(),
@@ -25,6 +42,7 @@ export const createXOGame = async (playerIds: string[], type: string) => {
     type: type,
     updatedAt: Date.now(),
     wonBy: null,
+    level,
   };
 
   try {
@@ -51,6 +69,9 @@ export type XOGame = {
   id: string;
   key: string;
   board: string[];
+  level?: number;
+  status?: string;
+  wonBy?: string;
   moveCount: number;
   currentTurn: string;
   playerXUserId: string;
@@ -152,3 +173,21 @@ export function useGameWithPlayers(id: string): {
     isLoading: gameLoading || usersLoading || botsLoading,
   };
 }
+
+export const completeXOGame = async (
+  gameId: string,
+  status: string,
+  wonBy: string | null
+) => {
+  try {
+    await db.transact(
+      db.tx.xogame[gameId].update({
+        status: "finished",
+        wonBy,
+      })
+    );
+  } catch (err) {
+    console.error("❌ Error completing XO game:", err);
+    throw err;
+  }
+};
