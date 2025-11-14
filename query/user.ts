@@ -47,11 +47,8 @@ export type Bot = {
   level?: number;
 };
 
-export const getRandomBot = async (level?: number): Promise<Bot | null> => {
-  const query =
-    level !== undefined
-      ? { bots: { $: { where: { level } } } }
-      : { bots: { $: {} } };
+export const getRandomBot = async (): Promise<Bot | null> => {
+  const query = { bots: { $: {} } };
 
   const { data } = await db.queryOnce(query);
   const bots = data?.bots ?? [];
@@ -63,13 +60,10 @@ export const getRandomBot = async (level?: number): Promise<Bot | null> => {
   return bots[randomIndex] as Bot;
 };
 
-export const getRandomBots = (count: number, level?: number): Bot[] | null => {
-  const query =
-    level !== undefined
-      ? { bots: { $: { where: { level } } } }
-      : { bots: { $: {} } };
+export const getRandomBots = async (count: number): Promise<Bot[] | null> => {
+  const query = { bots: { $: {} } };
 
-  const { data } = db.useQuery(query);
+  const { data } = await db.queryOnce(query);
   const bots = data?.bots ?? [];
 
   if (bots.length === 0) return null;

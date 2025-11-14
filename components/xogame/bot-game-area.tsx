@@ -23,10 +23,14 @@ export const BotXOGameArea = ({
 
   const winner = useMemo(() => computeXOWinner(board), [board]);
   const isDraw = moveCount >= MAX_MOVES && !winner;
-  const mySymbol = me.id === game.playerXUserId ? "X" : "O";
+
+  // Human is always one of the players, bot is the other
+  const humanSymbol = me.id === game.playerXUserId ? "X" : "O";
+  const botSymbol = humanSymbol === "X" ? "O" : "X";
+
   const isMyTurn = me.id === game.currentTurn;
 
-  // find playerX (human) and playerO (bot)
+  // find both players
   const playerX = useMemo(
     () => players?.find((p) => p.id === game?.playerXUserId),
     [players, game?.playerXUserId]
@@ -35,6 +39,10 @@ export const BotXOGameArea = ({
     () => players?.find((p) => p.id === game?.playerOUserId),
     [players, game?.playerOUserId]
   );
+
+  // Identify human and bot players
+  const humanPlayer = humanSymbol === "X" ? playerX : playerO;
+  const botPlayer = humanSymbol === "X" ? playerO : playerX;
 
   // current player id for highlighting
   const currentPlayer = game.currentTurn;
@@ -46,7 +54,7 @@ export const BotXOGameArea = ({
 
       const next = [...board];
       const newTrack = [...track, index];
-      next[index] = mySymbol;
+      next[index] = humanSymbol;
 
       // keep only 3 Xs on board
       if (newTrack.length > 6) {
@@ -81,7 +89,7 @@ export const BotXOGameArea = ({
       isMyTurn,
       winner,
       isDraw,
-      mySymbol,
+      humanSymbol,
       game.id,
       game.playerOUserId,
     ]
@@ -95,14 +103,14 @@ export const BotXOGameArea = ({
       const botIndex = getBotPlaying(
         board,
         track,
-        "O",
+        botSymbol,
         (game.level as number) || 1
       );
       if (botIndex === -1) return;
 
       const next = [...board];
       const newTrack = [...track, botIndex];
-      next[botIndex] = "O";
+      next[botIndex] = botSymbol;
 
       if (newTrack.length > 6) {
         const removedIndex = newTrack.shift();
@@ -188,27 +196,27 @@ export const BotXOGameArea = ({
     router.push("/xo");
   };
 
-  // Determine result message and opponent info
+  // Determine result message and opponent info - FIXED
   const getResultInfo = () => {
     if (isDraw) {
       return {
         title: "🤝 It's a Draw!",
         message: "Great game! You were equally matched",
-        opponent: playerO,
+        opponent: botPlayer,
         resultType: "draw",
       };
-    } else if (winner === mySymbol) {
+    } else if (winner === humanSymbol) {
       return {
         title: "🎉 You Won!",
         message: "Congratulations on your victory!",
-        opponent: playerO,
+        opponent: botPlayer,
         resultType: "win",
       };
     } else {
       return {
         title: "😔 You Lost",
         message: "Better luck next time!",
-        opponent: playerO,
+        opponent: botPlayer,
         resultType: "loss",
       };
     }
@@ -222,12 +230,12 @@ export const BotXOGameArea = ({
         Tic Tac Toe 🤖
       </Text>
 
-      {/* Players Info */}
+      {/* Players Info - FIXED */}
       <View className="flex-row justify-between items-center mb-6">
-        {/* Player X (Human) */}
+        {/* Human Player */}
         <View
           className={`flex-1 mx-2 items-center p-4 rounded-2xl transition-all duration-300 ${
-            currentPlayer === game.playerXUserId && !winner && !isDraw
+            currentPlayer === me.id && !winner && !isDraw
               ? "bg-green-600/20 border border-green-500/40 shadow-lg shadow-green-900/40"
               : "bg-gray-800/40 border border-gray-700/60"
           }`}
@@ -235,26 +243,32 @@ export const BotXOGameArea = ({
           <Image
             source={{
               uri:
-                playerX?.avatar ||
+                humanPlayer?.avatar ||
                 "https://cdn-icons-png.flaticon.com/512/149/149071.png",
             }}
             className="w-12 h-12 rounded-full mb-2 border-2 border-red-400/70"
           />
-          <Text className="text-red-400 text-2xl font-extrabold mb-1">X</Text>
-          <Text className="text-white font-semibold text-sm" numberOfLines={1}>
-            {playerX?.name || "You"}
+          <Text
+            className={`text-2xl font-extrabold mb-1 ${
+              humanSymbol === "X" ? "text-red-400" : "text-green-400"
+            }`}
+          >
+            {humanSymbol}
           </Text>
-          {currentPlayer === game.playerXUserId && !winner && !isDraw && (
+          <Text className="text-white font-semibold text-sm" numberOfLines={1}>
+            {humanPlayer?.name || "You"}
+          </Text>
+          {currentPlayer === me.id && !winner && !isDraw && (
             <Text className="text-xs text-red-300 mt-1 animate-pulse">
               Your Turn
             </Text>
           )}
         </View>
 
-        {/* Player O (Bot) */}
+        {/* Bot Player */}
         <View
           className={`flex-1 mx-2 items-center p-4 rounded-2xl transition-all duration-300 ${
-            currentPlayer === game.playerOUserId && !winner && !isDraw
+            currentPlayer !== me.id && !winner && !isDraw
               ? "bg-green-600/20 border border-green-500/40 shadow-lg shadow-green-900/40"
               : "bg-gray-800/40 border border-gray-700/60"
           }`}
@@ -262,16 +276,22 @@ export const BotXOGameArea = ({
           <Image
             source={{
               uri:
-                playerO?.avatar ||
+                botPlayer?.avatar ||
                 "https://cdn-icons-png.flaticon.com/512/4712/4712100.png",
             }}
             className="w-12 h-12 rounded-full mb-2 border-2 border-green-400/70"
           />
-          <Text className="text-green-400 text-2xl font-extrabold mb-1">O</Text>
-          <Text className="text-white font-semibold text-sm" numberOfLines={1}>
-            {playerO?.name || "Bot"}
+          <Text
+            className={`text-2xl font-extrabold mb-1 ${
+              botSymbol === "X" ? "text-red-400" : "text-green-400"
+            }`}
+          >
+            {botSymbol}
           </Text>
-          {currentPlayer === game.playerOUserId && !winner && !isDraw && (
+          <Text className="text-white font-semibold text-sm" numberOfLines={1}>
+            {botPlayer?.name || "Bot"}
+          </Text>
+          {currentPlayer !== me.id && !winner && !isDraw && (
             <Text className="text-xs text-green-300 mt-1 animate-pulse">
               Bot Thinking...
             </Text>
@@ -325,7 +345,7 @@ export const BotXOGameArea = ({
         </Text>
       </View>
 
-      {/* Result Modal */}
+      {/* Result Modal - FIXED */}
       <Modal transparent visible={showModal} animationType="fade">
         <View className="flex-1 bg-black/80 items-center justify-center px-6">
           <View className="w-full bg-gray-900/95 rounded-3xl p-8 border border-gray-700 shadow-2xl">
@@ -339,14 +359,14 @@ export const BotXOGameArea = ({
               </Text>
             </View>
 
-            {/* Opponent Info */}
+            {/* Opponent Info - FIXED */}
             <View className="items-center mb-8">
               <View className="flex-row items-center justify-center mb-4">
                 <View className="items-center ">
                   <Image
                     source={{
                       uri:
-                        playerX?.avatar ||
+                        humanPlayer?.avatar ||
                         "https://cdn-icons-png.flaticon.com/512/149/149071.png",
                     }}
                     className="w-16 h-16 rounded-full border-2 border-red-400/70"
@@ -354,7 +374,13 @@ export const BotXOGameArea = ({
                   <Text className="text-white font-semibold text-sm mt-2">
                     You
                   </Text>
-                  <Text className="text-red-400 text-lg font-bold">X</Text>
+                  <Text
+                    className={`text-lg font-bold ${
+                      humanSymbol === "X" ? "text-red-400" : "text-green-400"
+                    }`}
+                  >
+                    {humanSymbol}
+                  </Text>
                 </View>
 
                 <Text className="text-gray-400 text-2xl font-bold mx-4">
@@ -373,7 +399,13 @@ export const BotXOGameArea = ({
                   <Text className="text-white font-semibold text-sm mt-2">
                     {resultInfo.opponent?.name || "Bot"}
                   </Text>
-                  <Text className="text-green-400 text-lg font-bold">O</Text>
+                  <Text
+                    className={`text-lg font-bold ${
+                      botSymbol === "X" ? "text-red-400" : "text-green-400"
+                    }`}
+                  >
+                    {botSymbol}
+                  </Text>
                 </View>
               </View>
 

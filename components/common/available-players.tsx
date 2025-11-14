@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { getInitials } from "@/lib/utils";
+import { useCustomPresence } from "@/provider/presence-provider";
 import { useProfile } from "@/query/user";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { id as generateId } from "@instantdb/react-native";
@@ -39,22 +40,23 @@ type Request = {
 
 interface AvailablePlayersProps {
   myId: string;
-  players: Player[];
+  gameType: string;
 }
 
 export const AvailablePlayers: React.FC<AvailablePlayersProps> = ({
   myId,
-  players,
+  gameType,
 }: {
   myId: string;
-  players: Player[];
+  gameType: string;
 }) => {
+  const { onlineUsers: players } = useCustomPresence();
   // Subscribe to all requests related to this user for "xo" games
   const { data } = db.useQuery({
     requests: {
       $: {
         where: {
-          gametype: "xo",
+          gametype: gameType,
           or: [{ fromUserId: myId }, { toUserId: myId }],
         },
       },

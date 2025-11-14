@@ -1,5 +1,4 @@
-import { getRandomBot } from "@/query/user";
-import { createXOGame } from "@/query/xogame";
+import { createBoxBingoGame } from "@/query/bingo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -13,12 +12,10 @@ export const PlayWithBot = ({ myId }: { myId: string }) => {
     console.log("Starting bot game");
     setCreating(true);
     try {
-      const bot = await getRandomBot();
-      if (!bot) throw new Error("Bot not found");
-      const response = await createXOGame([myId, bot.id], "bot", 1);
+      const response = await createBoxBingoGame(myId);
       if (response.success) {
         setCreating(false);
-        router.push(`/xo/${response.result}`);
+        router.push(`/bingo/${response.result}`);
       } else {
         throw new Error("Failed to create game");
       }

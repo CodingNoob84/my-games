@@ -3,7 +3,7 @@ import { id } from "@instantdb/core";
 import { getRandomBot } from "./user";
 
 export const createBotXOGame = async (myId: string, level: number) => {
-  const bot = await getRandomBot(level);
+  const bot = await getRandomBot();
   if (!bot) {
     console.error("❌ No bot found!");
     return { success: false, result: null, error: "No bot available" };

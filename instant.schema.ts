@@ -26,6 +26,7 @@ const _schema = i.schema({
       avatar: i.string().optional(),
       email: i.string().optional(),
       name: i.string().optional(),
+      level: i.number().optional(),
     }),
     requests: i.entity({
       fromUserId: i.string().indexed(),
@@ -50,6 +51,22 @@ const _schema = i.schema({
       type: i.string().indexed(),
       updatedAt: i.number().indexed().optional(),
       wonBy: i.string().optional(),
+    }),
+    bingo: i.entity({
+      markedNumbers: i.json(),
+      limit: i.number(),
+      orderOfTurns: i.json(),
+      status: i.string().optional(),
+      type: i.string(),
+      wonBy: i.string().optional(),
+      createdAt: i.number().optional(),
+      updatedAt: i.number().optional(),
+    }),
+    bingoplayers: i.entity({
+      userId: i.string(),
+      bingoId: i.string().indexed(),
+      board: i.json(),
+      winningArray: i.json(),
     }),
     numberly: i.entity({
       userId: i.string().indexed(),
@@ -86,6 +103,23 @@ const _schema = i.schema({
         has: "one",
         label: "profile",
       },
+    },
+    bingoPlayersLink: {
+      forward: {
+        on: "bingoplayers",
+        has: "one",
+        label: "bingo",
+        required: true,
+      },
+      reverse: { on: "bingo", has: "many", label: "players" },
+    },
+    botBingoPlayersLink: {
+      forward: {
+        on: "bingoplayers",
+        has: "one",
+        label: "player",
+      },
+      reverse: { on: "bots", has: "one", label: "bot" },
     },
   },
   rooms: {

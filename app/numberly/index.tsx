@@ -1,6 +1,5 @@
 import { db } from "@/lib/db";
 import { useCustomPresence } from "@/provider/presence-provider";
-import { createBotNumberly } from "@/query/numberly";
 import { getRandomBot } from "@/query/user";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -25,12 +24,6 @@ export default function NumberlyIndex() {
   const handleStartBotGame = async () => {
     setCreating(true);
     try {
-      if (bot) {
-        const response = await createBotNumberly(me.id, "bot");
-        if (response.success) {
-          router.push(`/numberly/${response.result}`);
-        }
-      }
     } catch (error) {
       console.error("Failed to start bot game:", error);
     } finally {
