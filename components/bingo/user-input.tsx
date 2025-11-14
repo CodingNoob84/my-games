@@ -20,6 +20,7 @@ export const UserInput = ({
   orderOfTurns: string[];
   bpId: string;
 }) => {
+  console.log("mkarkedNumbers", markedNumbers);
   const me = db.useUser();
   const router = useRouter();
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null);

@@ -7,6 +7,7 @@ import {
   usePlayersInfo,
 } from "@/lib/bingo";
 import { HeadingSection } from "../common/heading-section";
+import { MarkedNumbersAccordion } from "./marked-numbers";
 import { PlayersGrid } from "./players-info";
 import { BingoResultsScreen } from "./result-screen";
 import { StartBingoGame } from "./start-game";
@@ -49,7 +50,11 @@ export const BingoGameArea = ({
               currentTurn={gameData.orderOfTurns[0]}
               players={players}
             />
-
+            <MarkedNumbersAccordion
+              markedNumbers={gameData.markedNumbers || []}
+              limit={gameData.limit || 75}
+              title="Your Marked Numbers"
+            />
             <UserInput
               gameId={gameData.id}
               board={myData?.board || []}
